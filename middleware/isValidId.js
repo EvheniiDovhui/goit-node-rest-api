@@ -10,7 +10,7 @@ export const isValidId = async (req, res, next) => {
 			return next(HttpError(400, `Id ${contactId} is not valid`))
 		}
 		const searchedContact = await Contact.findById(contactId)
-		if (searchedContact) {
+		if (!searchedContact) {
 			return next(HttpError(404, `Contact with id ${contactId} not found`))
 		}
 	} catch (err) {

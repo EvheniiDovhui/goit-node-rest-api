@@ -8,7 +8,7 @@ import contactsRouter from './routes/contactsRouter.js'
 dotenv.config()
 const { MONGODB_URL, PORT = 3000 } = process.env
 
-// mongoose.set('strictQuery', true)
+mongoose.set('strictQuery', true)
 
 mongoose
 	.connect(MONGODB_URL)
