@@ -17,9 +17,7 @@ export const getOneContact = async (req, res, next) => {
 	try {
 		const searchedId = req.params.contactId
 		const result = await Contact.findById(searchedId)
-		if (!result) {
-			throw HttpError(404, `Contact with id ${searchedId} not found`)
-		}
+
 		res.json(result)
 	} catch (err) {
 		next(err)
@@ -28,10 +26,7 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = async (req, res, next) => {
 	try {
-		const result = await Contact.findByIdAndRemove(req.params.contactId)
-		if (!result) {
-			throw HttpError(404, `Contact with id ${req.params.contactId} not found`)
-		}
+		const result = await Contact.findByIdAndDelete(req.params.contactId)
 		res.json(result)
 	} catch (err) {
 		next(err)
@@ -40,7 +35,7 @@ export const deleteContact = async (req, res, next) => {
 
 export const createContact = async (req, res, next) => {
 	try {
-		const result = Contact.create(req.body)
+		const result = await Contact.create(req.body)
 		res.status(201).json(result)
 	} catch (err) {
 		next(err)
@@ -49,16 +44,12 @@ export const createContact = async (req, res, next) => {
 
 export const updateContact = async (req, res, next) => {
 	try {
-		const { contactId } = req.params
 		const result = await Contact.findByIdAndUpdate(
 			req.params.contactId,
 			req.body,
 			{ new: true }
 		)
-		if (!updatedContact) {
-			throw HttpError(404, `Contact with id ${contactId} not found`)
-		}
-		res.json(updatedContact)
+		res.json(result)
 	} catch (err) {
 		next(err)
 	}
@@ -66,16 +57,14 @@ export const updateContact = async (req, res, next) => {
 
 export const updateStatusContact = async (req, res, next) => {
 	try {
-		const { contactId } = req.params
 		const result = await Contact.findByIdAndUpdate(
 			req.params.contactId,
 			req.body,
-			{ new: true }
+			{
+				new: true,
+			}
 		)
-		if (!updatedContact) {
-			throw HttpError(404, `Contact with id ${contactId} not found`)
-		}
-		res.json(updatedContact)
+		res.json(result)
 	} catch (err) {
 		next(err)
 	}
