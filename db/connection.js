@@ -1,10 +1,10 @@
 import { connect } from 'mongoose'
 
-const { DB_HOST } = process.env
+const { MONGODB_URL } = process.env
 
 export const connectDB = async () => {
 	try {
-		await connect(DB_HOST)
+		await connect(MONGODB_URL)
 		console.log('Database connection successful')
 	} catch (err) {
 		console.log(err)
