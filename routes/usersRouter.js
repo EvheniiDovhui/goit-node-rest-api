@@ -10,6 +10,7 @@ import {
 	logoutUser,
 	getCurrentUser,
 	changeUserSubscription,
+	changeUserAvatar,
 } from '../controllers/usersControllers.js'
 import { isAuthorizedUser } from '../middleware/isAuthorizedUser.js'
 
@@ -29,5 +30,7 @@ usersRouter.patch(
 	validateBody(subscriptionSchema),
 	changeUserSubscription
 )
+
+usersRouter.patch('/avatars', isAuthorizedUser, uploadAvatar, changeUserAvatar)
 
 export default usersRouter
