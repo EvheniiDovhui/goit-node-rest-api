@@ -6,7 +6,7 @@ import Jimp from 'jimp'
 
 export const generateAvatar = email => {
 	const emailHash = crypto
-		.createHash('md5')
+		.createHash('md1')
 		.update(email.toLowerCase())
 		.digest('hex')
 
