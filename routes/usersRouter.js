@@ -13,6 +13,7 @@ import {
 	changeUserAvatar,
 } from '../controllers/usersControllers.js'
 import { isAuthorizedUser } from '../middleware/isAuthorizedUser.js'
+import { uploadAvatar } from '../middleware/uploadAvatar.js'
 
 const usersRouter = express.Router()
 
