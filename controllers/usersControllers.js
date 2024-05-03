@@ -1,17 +1,15 @@
 import HttpError from '../helpers/HttpError.js'
 import {
-	findUserByEmail,
-	createUser,
-	changeSubscription,
-} from '../services/usersServices.js'
-
-import {
 	generateAvatar,
 	manipulateAvatar,
 	updateAvatar,
 } from '../services/avatarsServices.js'
-
 import { addTokenUser, deletTokenUser } from '../services/jwtServices.js'
+import {
+	findUserByEmail,
+	createUser,
+	changeSubscription,
+} from '../services/usersServices.js'
 
 export const createNewUser = async (req, res, next) => {
 	try {
