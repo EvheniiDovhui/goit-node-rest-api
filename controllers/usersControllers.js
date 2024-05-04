@@ -4,13 +4,20 @@ import {
 	manipulateAvatar,
 	updateAvatar,
 } from '../services/avatarsServices.js'
+import { emailService } from '../services/emailServices.js'
 import { addTokenUser, deletTokenUser } from '../services/jwtServices.js'
 import {
 	findUserByEmail,
 	createUser,
 	changeSubscription,
 } from '../services/usersServices.js'
+import {
+	approveVerification,
+	generateOtp,
+	verifyUser,
+} from '../services/verificationService.js'
 
+// Users controllers
 export const createNewUser = async (req, res, next) => {
 	try {
 		const { email } = req.body
@@ -21,11 +28,19 @@ export const createNewUser = async (req, res, next) => {
 		}
 
 		req.body.avatarURL = generateAvatar(email)
+		req.body.verificationToken = generateOtp()
 
 		const user = await createUser(req.body)
+		const host = req.get('host')
+
+		await emailService(req.protocol, host, user.verificationToken, user.email)
 
 		res.status(201).json({
-			user: { email: user.email, subscription: user.subscription },
+			user: {
+				email: user.email,
+				subscription: user.subscription,
+				verificationToken: user.verificationToken,
+			},
 		})
 	} catch (err) {
 		console.log(err)
@@ -33,13 +48,68 @@ export const createNewUser = async (req, res, next) => {
 	}
 }
 
+export const getCurrentUser = async (req, res, next) => {
+	try {
+		const { email, subscription } = req.user
+
+		res.status(200).json({
+			email,
+			subscription,
+		})
+	} catch (err) {
+		console.log(err)
+		next(err)
+	}
+}
+
+export const changeUserSubscription = async (req, res, next) => {
+	try {
+		const { _id } = req.user
+
+		req.user.subscription = req.body.subscription
+
+		const newSubscription = await changeSubscription(_id, {
+			subscription: req.user.subscription,
+		})
+
+		res.status(200).json({
+			user: {
+				email: newSubscription.email,
+				subscription: newSubscription.subscription,
+			},
+		})
+	} catch (err) {
+		console.log(err)
+		next(err)
+	}
+}
+
+export const changeUserAvatar = async (req, res, next) => {
+	try {
+		const { path: tempUpload, originalname } = req.file
+		const { id } = req.user
+
+		const pathToAvatar = await manipulateAvatar(tempUpload, originalname, id)
+
+		const updatedUser = await updateAvatar(req.user, pathToAvatar)
+
+		res.status(200).json({
+			avatarURL: updatedUser.avatarURL,
+		})
+	} catch (err) {
+		console.log(err)
+		next(err)
+	}
+}
+
+// Auth controllers
 export const loginUser = async (req, res, next) => {
 	try {
 		const { email, password } = req.body
 
 		const result = await findUserByEmail(email)
-		if (!result || !result.comparePassword(password)) {
-			throw HttpError(401, 'Email or password is wrong')
+		if (!result || !result.verify || !result.comparePassword(password)) {
+			throw HttpError(401)
 		}
 
 		const user = await addTokenUser(result._id)
@@ -68,12 +138,19 @@ export const logoutUser = async (req, res, next) => {
 	}
 }
 
-export const getCurrentUser = async (req, res, next) => {
+// Verification controllers
+export const checkUserVerification = async (req, res, next) => {
 	try {
-		const { email, subscription } = req.user
+		const verifiedUser = await verifyUser(req.params.verificationToken)
+
+		if (!verifiedUser) {
+			throw HttpError(400, 'User not found')
+		}
+
+		approveVerification(verifiedUser)
+
 		res.status(200).json({
-			email,
-			subscription,
+			message: 'Verification successful',
 		})
 	} catch (err) {
 		console.log(err)
@@ -81,37 +158,22 @@ export const getCurrentUser = async (req, res, next) => {
 	}
 }
 
-export const changeUserSubscription = async (req, res, next) => {
+export const sendEmailVerification = async (req, res, next) => {
 	try {
-		const { _id } = req.user
-		req.user.subscription = req.body.subscription
-		const newSubscription = await changeSubscription(_id, {
-			subscription: req.user.subscription,
-		})
+		const { email } = req.body
+		const user = await findUserByEmail(email)
+
+		if (!user) throw HttpError(404, 'User not found')
+
+		if (user.verify)
+			throw HttpError(400, 'Verification has already been passed')
+
+		const host = req.get('host')
+
+		await emailService(req.protocol, host, user.verificationToken, user.email)
 
 		res.status(200).json({
-			user: {
-				email: newSubscription.email,
-				subscription: newSubscription.subscription,
-			},
-		})
-	} catch (err) {
-		console.log(err)
-		next(err)
-	}
-}
-
-export const changeUserAvatar = async (req, res, next) => {
-	try {
-		const { path: tempUpload, originalname } = req.file
-		const { id } = req.user
-
-		const pathToAvatar = await manipulateAvatar(tempUpload, originalname, id)
-
-		const updatedUser = await updateAvatar(req.user, pathToAvatar)
-
-		res.status(200).json({
-			avatarURL: updatedUser.avatarURL,
+			message: 'Verification email sent',
 		})
 	} catch (err) {
 		console.log(err)

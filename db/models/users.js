@@ -4,6 +4,10 @@ import bcryptjs from 'bcryptjs'
 
 const userSchema = new Schema(
 	{
+		name: {
+			type: String,
+			required: false,
+		},
 		password: {
 			type: String,
 			required: [true, 'Password is required'],
@@ -18,9 +22,19 @@ const userSchema = new Schema(
 			enum: ['starter', 'pro', 'business'],
 			default: 'starter',
 		},
+		avatarURL: String,
 		token: {
 			type: String,
 			default: null,
+		},
+		verify: {
+			type: Boolean,
+			default: false,
+		},
+
+		verificationToken: {
+			type: String,
+			required: [true, 'Verify token is required'],
 		},
 	},
 	{
@@ -36,6 +50,10 @@ userSchema.methods.hashPassword = async function () {
 
 userSchema.methods.comparePassword = function (password) {
 	return bcryptjs.compareSync(password, this.password)
+}
+
+userSchema.methods.compareToken = function (verificationToken) {
+	return bcryptjs.compareSync(verificationToken, this.verificationToken)
 }
 
 export const User = model('user', userSchema)
