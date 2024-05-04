@@ -103,6 +103,11 @@ export const changeUserSubscription = async (req, res, next) => {
 
 export const changeUserAvatar = async (req, res, next) => {
 	try {
+		// Перевіряємо, чи передано файл аватара у запиті
+		if (!req.file) {
+			return res.status(400).json({ message: 'Avatar file is required' })
+		}
+
 		const { path: tempUpload, originalname } = req.file
 		const { id } = req.user
 
