@@ -4,6 +4,10 @@ import bcryptjs from 'bcryptjs'
 
 const userSchema = new Schema(
 	{
+		name: {
+			type: String,
+			required: false,
+		},
 		password: {
 			type: String,
 			required: [true, 'Password is required'],
