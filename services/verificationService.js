@@ -6,12 +6,12 @@ export const generateOtp = () => {
 	return otp
 }
 
-export const verifyUser = async verificationToken => {
+export const verifyUser = async (verificationToken) => {
 	const user = await User.findOne({ verificationToken })
 	return user
 }
 
-export const approveVerification = async verifiedUser => {
+export const approveVerification = async (verifiedUser) => {
 	verifiedUser.verificationToken = null
 	verifiedUser.verify = true
 
