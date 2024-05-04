@@ -1,5 +1,5 @@
-import HttpError from '../helpers/HttpError.js'
 import { isValidObjectId } from 'mongoose'
+import HttpError from '../helpers/HttpError.js'
 import { Contact } from '../db/models/contacts.js'
 
 export const isValidId = async (req, _, next) => {
@@ -7,15 +7,16 @@ export const isValidId = async (req, _, next) => {
 
 	try {
 		if (!isValidObjectId(contactId)) {
-			next(HttpError(400, `Id ${contactId} is not valid`))
+			next(HttpError(400, `${contactId} is not a valid ID`))
 			return
 		}
 		const searchedContact = await Contact.findById(contactId)
 		if (searchedContact === null) {
-			return next(HttpError(404, `Contact with id ${contactId} not found`))
+			next(HttpError(404, `The contact with ID ${contactId} was not found`))
 		}
 	} catch (err) {
 		console.log(err.message)
 	}
+
 	next()
 }

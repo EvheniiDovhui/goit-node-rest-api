@@ -11,9 +11,11 @@ export const getAllContacts = async (req, res, next) => {
 			skip,
 			limit: Number(limit),
 		}).populate('owner', '_id email')
+
 		if (!result.length) {
 			throw HttpError(404, 'There is no contact')
 		}
+
 		res.json(result)
 	} catch (err) {
 		next(err)
@@ -22,8 +24,7 @@ export const getAllContacts = async (req, res, next) => {
 
 export const getOneContact = async (req, res, next) => {
 	try {
-		const searchedId = req.params.contactId
-		const result = await checkOwner(searchedId, req.user)
+		const result = await checkOwner(req.params.contactId, req.user)
 
 		res.json(result)
 	} catch (err) {
@@ -33,9 +34,7 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = async (req, res, next) => {
 	try {
-		const searchedId = req.params.contactId
-
-		const { id } = await checkOwner(searchedId, req.user)
+		const { id } = await checkOwner(req.params.contactId, req.user)
 
 		const result = await Contact.findByIdAndDelete(id)
 		res.json(result)
@@ -56,10 +55,11 @@ export const createContact = async (req, res, next) => {
 
 export const updateContact = async (req, res, next) => {
 	try {
-		const searchedId = req.params.contactId
+		const { id } = await checkOwner(req.params.contactId, req.user)
 
-		const { id } = await checkOwner(searchedId, req.user)
-		const result = await Contact.findByIdAndUpdate(id, req.body, { new: true })
+		const result = await Contact.findByIdAndUpdate(id, req.body, {
+			new: true,
+		})
 		res.json(result)
 	} catch (err) {
 		next(err)
@@ -68,8 +68,7 @@ export const updateContact = async (req, res, next) => {
 
 export const updateStatusContact = async (req, res, next) => {
 	try {
-		const searchedId = req.params.contactId
-		const { id } = await checkOwner(searchedId, req.user)
+		const { id } = await checkOwner(req.params.contactId, req.user)
 
 		const result = await Contact.findByIdAndUpdate(id, req.body, {
 			new: true,

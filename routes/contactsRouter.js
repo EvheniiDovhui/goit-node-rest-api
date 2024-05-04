@@ -12,7 +12,6 @@ import {
 	updateContactSchema,
 	updateFavoriteSchema,
 } from '../schemas/contactsSchemas.js'
-
 import validateBody from '../helpers/validateBody.js'
 import { isValidId } from '../middleware/isValidId.js'
 import { isAuthorizedUser } from '../middleware/isAuthorizedUser.js'
@@ -39,7 +38,6 @@ contactsRouter.put(
 	validateBody(updateContactSchema),
 	updateContact
 )
-
 contactsRouter.patch(
 	'/:contactId/favorite',
 	isAuthorizedUser,

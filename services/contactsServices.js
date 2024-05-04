@@ -6,8 +6,9 @@ export const checkOwner = async (contactId, user) => {
 
 	const { id } = user
 
-	if (id !== result.owner.toString()) {
-		throw HttpError(401, 'Unauthorized')
+	if (id !== result.owner._id.toString()) {
+		throw HttpError(401, 'Not authorized')
 	}
+
 	return result
 }
